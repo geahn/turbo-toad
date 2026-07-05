@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useGame } from "../store/gameStore";
 import { useNet } from "../net/net";
+import { useUI } from "../store/ui";
 import { CHARACTERS } from "../data/characters";
 import { Avatar } from "../components/Avatar";
 
@@ -65,6 +66,9 @@ export function Home() {
             </button>
             <button className="btn btn--gold" onClick={quickDice}>
               🎲 Modo Rápido (só dados)
+            </button>
+            <button className="btn btn--ghost" onClick={() => useUI.getState().openManual()}>
+              📖 Manual de regras
             </button>
           </div>
         </>

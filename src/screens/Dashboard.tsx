@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useGame, orderedPlayers, ranking } from "../store/gameStore";
 import { useNet } from "../net/net";
+import { useUI } from "../store/ui";
 import { Avatar } from "../components/Avatar";
 import { itemMeta } from "../data/items";
 import { tileTypeAt, TILE_META } from "../data/board";
@@ -120,6 +121,9 @@ export function Dashboard({ nav }: { nav: (r: Route) => void }) {
             <div className="stack-12">
               <button className="btn btn--sky" onClick={() => nav({ name: "dice" })}>
                 🎲 Abrir os dados
+              </button>
+              <button className="btn btn--ghost" onClick={() => { setMenu(false); useUI.getState().openManual(); }}>
+                📖 Manual de regras
               </button>
               {config.mode === "full" && isHost && (
                 <button className="btn btn--gold" onClick={() => { setMenu(false); setShowEditor(true); }}>

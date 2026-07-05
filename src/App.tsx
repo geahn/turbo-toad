@@ -10,6 +10,8 @@ import { PlayerScreen } from "./screens/PlayerScreen";
 import { Shop } from "./screens/Shop";
 import { DiceOnly } from "./screens/DiceOnly";
 import { Results } from "./screens/Results";
+import { Manual } from "./screens/Manual";
+import { useUI } from "./store/ui";
 
 export type Route =
   | { name: "dashboard" }
@@ -61,9 +63,12 @@ export function App() {
     }
   }
 
+  const manualOpen = useUI((s) => s.manualOpen);
+
   return (
     <div className="app">
       <div className="screen fade-enter">{content}</div>
+      {manualOpen && <Manual />}
     </div>
   );
 }
