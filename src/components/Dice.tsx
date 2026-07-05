@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { DiceKind, POWER_FACES, NEUTRAL_FACES, DiceFace } from "../data/items";
 
 const PIP_LAYOUT: Record<number, [number, number][]> = {
@@ -94,17 +94,17 @@ export function Dice({
         transition={{ duration: 0.4 }}
         whileTap={{ scale: 0.94 }}
       >
-        <AnimatePresence mode="popLayout">
-          <motion.div
-            key={value ?? "empty"}
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.5 }}
-            transition={{ duration: 0.12 }}
-          >
-            {value == null ? <span className="dice-icon">🎲</span> : faceContent(kind, value)}
-          </motion.div>
-        </AnimatePresence>
+        {/* keyed div re-mounts on cada valor -> anima o "pop" sem AnimatePresence
+            (popLayout quebrava em alguns navegadores mobile) */}
+        <motion.div
+          key={value ?? "empty"}
+          initial={{ opacity: 0, scale: 0.6 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.12 }}
+          style={{ display: "grid", placeItems: "center", width: "100%", height: "100%" }}
+        >
+          {value == null ? <span className="dice-icon">🎲</span> : faceContent(kind, value)}
+        </motion.div>
       </motion.button>
 
       {currentFace && !rolling && (

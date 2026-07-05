@@ -458,6 +458,7 @@ h3 {
 /* ---------- Dice ---------- */
 .dice-face {
   width: min(62vw, 220px);
+  height: min(62vw, 220px);
   aspect-ratio: 1;
   border-radius: 30px;
   border: 5px solid var(--ink);
