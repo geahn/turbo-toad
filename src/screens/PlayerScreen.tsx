@@ -28,6 +28,7 @@ export function PlayerScreen({ id, nav }: { id: string; nav: (r: Route) => void 
   const [showEffects, setShowEffects] = useState(false);
   const [showPower, setShowPower] = useState(false);
   const [showNeutral, setShowNeutral] = useState(false);
+  const [showReverse, setShowReverse] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const flash = (m: string) => { setToast(m); setTimeout(() => setToast(null), 2600); };
 
@@ -76,9 +77,17 @@ export function PlayerScreen({ id, nav }: { id: string; nav: (r: Route) => void 
         store.moveBy(p.id, -2);
         flash("🛢️ Poça de óleo: voltou 2 casas!");
         store.clearTrap(landingIdx);
+      } else if (trap.kind === "dado_invertido") {
+        // vítima joga o dado e VOLTA esse tanto de casas
+        flash("🔄 Dado invertido! Jogue o dado pra voltar casas…");
+        store.clearTrap(landingIdx);
+        setPendingRoll(null);
+        setMoveBy(0);
+        setShowReverse(true);
+        return;
       } else {
-        // dado invertido / armadilha => a vítima sorteia um neutralizador pra si
-        flash("😈 Caiu numa armadilha! Sorteie um neutralizador…");
+        // armadilha => a vítima ativa um neutralizador pra si
+        flash("🪤 Caiu na armadilha! Sorteie um neutralizador…");
         store.clearTrap(landingIdx);
         setPendingRoll(null);
         setMoveBy(0);
@@ -349,6 +358,26 @@ export function PlayerScreen({ id, nav }: { id: string; nav: (r: Route) => void 
               </div>
             )}
             <button className="btn btn--ghost" style={{ marginTop: 12 }} onClick={() => setShowNeutral(false)}>Fechar</button>
+          </div>
+        </div>
+      )}
+
+      {/* Reverse dice (dado invertido): joga o dado e VOLTA esse tanto */}
+      {showReverse && (
+        <div className="overlay" onClick={() => setShowReverse(false)}>
+          <div className="sheet" onClick={(e) => e.stopPropagation()}>
+            <h2 className="center-text" style={{ marginBottom: 6 }}>🔄 Dado Invertido</h2>
+            <p className="tiny center-text muted" style={{ marginTop: 0 }}>
+              Jogue o dado — em vez de avançar, você <strong>volta</strong> esse tanto de casas.
+            </p>
+            <Dice
+              kind="number"
+              onResult={(v) => {
+                store.moveBy(p.id, -v);
+                flash(`🔄 Dado invertido: voltou ${v} casas!`);
+              }}
+            />
+            <button className="btn btn--ghost" style={{ marginTop: 12 }} onClick={() => setShowReverse(false)}>Fechar</button>
           </div>
         </div>
       )}

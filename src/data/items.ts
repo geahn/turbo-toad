@@ -49,7 +49,7 @@ export const SHOP: ShopProduct[] = [
   // Dados
   { id: "dado_duplo", name: "Dado Duplo", glyph: "🎲", price: 5, group: "dados", carryable: true, desc: "Lance o dado 2 vezes." },
   { id: "dado_triplo", name: "Dado Triplo", glyph: "🎲", price: 7, group: "dados", carryable: true, desc: "Lance o dado 3 vezes." },
-  { id: "dado_invertido", name: "Dado Invertido", glyph: "🔄", price: 10, group: "dados", carryable: true, desc: "O próximo jogador volta a quantidade sorteada no dado." },
+  { id: "dado_invertido", name: "Dado Invertido", glyph: "🔄", price: 10, group: "dados", carryable: true, desc: "Deixe na casa atual: quem cair joga o dado e VOLTA esse tanto de casas (em vez de avançar)." },
   // Reforços
   { id: "cog_vermelho", name: "Cogumelo Vermelho", glyph: "🍄", price: 4, group: "reforcos", carryable: true, desc: "Pula 1 casa — pode evitar cair numa casa ruim." },
   { id: "cog_dourado", name: "Cogumelo Dourado", glyph: "🌟", price: 8, group: "reforcos", carryable: true, desc: "Qualquer número do dado lançado é multiplicado por 2." },

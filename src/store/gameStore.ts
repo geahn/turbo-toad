@@ -491,7 +491,7 @@ export const useGame = create<GameState>()(
           case "dado_invertido":
             consume();
             get().placeTrap(me.position, "dado_invertido", playerId);
-            return "🔄 Dado invertido deixado na casa: quem cair sorteia um neutralizador.";
+            return "🔄 Dado invertido deixado na casa: quem cair joga o dado e volta esse tanto.";
 
           case "armadilha":
             consume();
