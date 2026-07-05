@@ -20,7 +20,7 @@ export const POWER_FACES: DiceFace[] = [
   { face: 2, id: "banana", name: "Banana", glyph: "🍌", color: "#ffe066", desc: "Escorregou! Volte 1 casa." },
   { face: 3, id: "mushroom", name: "Cogumelo", glyph: "🍄", color: "#ff6b6b", desc: "Pule 1 casa pra frente quando quiser — dá pra escapar de uma casa ruim." },
   { face: 4, id: "greenshell", name: "Casco Verde", glyph: "🐢", color: "#51cf66", desc: "Proteção contra: casco vermelho, banana, armadilha e dado invertido." },
-  { face: 5, id: "redshell", name: "Casco Vermelho", glyph: "🔴", color: "#ff8787", desc: "Atinge o próximo jogador: ele volta 2 casas." },
+  { face: 5, id: "redshell", name: "Casco Vermelho", glyph: "🔴", color: "#ff8787", desc: "Enquanto carregado, protege (como o casco verde). Use pra atingir o jogador à frente: ele volta 2 casas." },
   { face: 6, id: "star", name: "Estrela", glyph: "⭐", color: "#ffd43b", desc: "Fique invencível! Imune a cascos, banana, armadilha, dado invertido, buraco, óleo, casco espinhoso, raio e planta." },
 ];
 

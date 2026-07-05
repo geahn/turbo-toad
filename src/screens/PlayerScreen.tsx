@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { useGame, slotCap } from "../store/gameStore";
+import { useGame, slotCap, hasShield } from "../store/gameStore";
 import { useNet } from "../net/net";
 import { Avatar } from "../components/Avatar";
 import { Dice } from "../components/Dice";
@@ -65,13 +65,13 @@ export function PlayerScreen({ id, nav }: { id: string; nav: (r: Route) => void 
     const trap = traps.find((t) => t.tile === landingIdx);
     if (trap) {
       const immune = p.effects.some((e) => e.id === "star");
-      const green = p.protections.includes("greenshell");
+      const shielded = hasShield(p);
       if (immune) {
         flash("⭐ Invencível: ignorou a armadilha!");
         store.clearTrap(landingIdx);
-      } else if (green && (trap.kind === "armadilha" || trap.kind === "dado_invertido")) {
-        store.removeProtection(p.id, "greenshell");
-        flash("🐢 Casco verde bloqueou a armadilha!");
+      } else if (shielded && (trap.kind === "armadilha" || trap.kind === "dado_invertido")) {
+        store.consumeShield(p.id);
+        flash("🛡️ Casco bloqueou a armadilha!");
         store.clearTrap(landingIdx);
       } else if (trap.kind === "poca_oleo") {
         store.moveBy(p.id, -2);
@@ -419,6 +419,7 @@ function StatusBadge({ id }: { id: string }) {
   if (p.finished) badges.push("🏆 Terminou");
   if (p.skipTurns > 0) badges.push(`⛔ Parado ${p.skipTurns}`);
   if (p.protections.includes("greenshell")) badges.push("🐢 Casco verde");
+  if (p.items.includes("redshell")) badges.push("🔴 Casco (escudo)");
   p.effects.forEach((e) =>
     badges.push(e.id === "star" ? `⭐ Invencível (${e.roundsLeft})` : `${e.glyph} ${e.label} (${e.roundsLeft})`)
   );

@@ -96,6 +96,12 @@ interface GameState {
   placeTrap: (tile: number, kind: Trap["kind"], owner: string) => void;
   clearTrap: (tile: number) => void;
   useItem: (playerId: string, itemId: string, targetId?: string) => string;
+  consumeShield: (id: string) => void;
+}
+
+/** o jogador tem escudo (casco verde OU casco vermelho no inventário) */
+export function hasShield(p: Player): boolean {
+  return p.protections.includes("greenshell") || p.items.includes("redshell");
 }
 
 /** proteções: retorna true se o alvo escapou (e consome casco verde) */
@@ -445,6 +451,23 @@ export const useGame = create<GameState>()(
 
       clearTrap: (tile) => set((s) => ({ traps: s.traps.filter((t) => t.tile !== tile) })),
 
+      // gasta 1 escudo: casco verde primeiro; senão 1 casco vermelho do inventário
+      consumeShield: (id) =>
+        set((s) => ({
+          players: s.players.map((p) => {
+            if (p.id !== id) return p;
+            if (p.protections.includes("greenshell"))
+              return { ...p, protections: p.protections.filter((x) => x !== "greenshell") };
+            const i = p.items.indexOf("redshell");
+            if (i !== -1) {
+              const items = [...p.items];
+              items.splice(i, 1);
+              return { ...p, items };
+            }
+            return p;
+          }),
+        })),
+
       useItem: (playerId, itemId, targetId) => {
         const s = get();
         const me = s.players.find((p) => p.id === playerId);
@@ -479,10 +502,10 @@ export const useGame = create<GameState>()(
               target = best ?? undefined;
             }
             if (!target) return "🔴 Ninguém à frente pra atingir.";
-            if (shieldBlocks(target, "redshell")) return `🔴 ${target.name} estava protegido!`;
-            if (target.protections.includes("greenshell")) {
-              get().removeProtection(target.id, "greenshell");
-              return `🐢 ${target.name} bloqueou com o casco verde!`;
+            if (shieldBlocks(target, "redshell")) return `🔴 ${target.name} estava invencível!`;
+            if (hasShield(target)) {
+              get().consumeShield(target.id);
+              return `🛡️ ${target.name} bloqueou com um casco!`;
             }
             get().moveBy(target.id, -2);
             return `🔴 ${target.name} voltou 2 casas!`;
