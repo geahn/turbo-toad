@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { useGame } from "../store/gameStore";
+import { useGame, slotCap } from "../store/gameStore";
 import { useNet } from "../net/net";
 import { Avatar } from "../components/Avatar";
 import { Dice } from "../components/Dice";
@@ -55,7 +55,6 @@ export function PlayerScreen({ id, nav }: { id: string; nav: (r: Route) => void 
   const doMove = () => {
     const landingIdx = wrap(p.position + moveBy, board.length);
     const landingType = board[landingIdx];
-    const rolledAmount = moveBy;
     store.moveBy(p.id, moveBy);
     if (hasBlue && pendingRoll === 6) store.removeEffect(p.id, "bluemushroom");
     if (hasGolden) store.removeEffect(p.id, "golden");
@@ -67,19 +66,23 @@ export function PlayerScreen({ id, nav }: { id: string; nav: (r: Route) => void 
       const green = p.protections.includes("greenshell");
       if (immune) {
         flash("⭐ Invencível: ignorou a armadilha!");
+        store.clearTrap(landingIdx);
       } else if (green && (trap.kind === "armadilha" || trap.kind === "dado_invertido")) {
         store.removeProtection(p.id, "greenshell");
         flash("🐢 Casco verde bloqueou a armadilha!");
         store.clearTrap(landingIdx);
-      } else {
-        if (trap.kind === "dado_invertido") { store.moveBy(p.id, -rolledAmount); flash(`🔄 Dado invertido: voltou ${rolledAmount} casas!`); }
-        else if (trap.kind === "poca_oleo") { store.moveBy(p.id, -3); flash("🛢️ Poça de óleo: voltou 3 casas!"); }
-        else if (trap.kind === "armadilha") {
-          store.addSkip(p.id, 1);
-          store.addEffect(p.id, { id: "noslot", label: "Slot fechado", glyph: "🚫", roundsLeft: 1 });
-          flash("🪤 Caiu na armadilha: 1 rodada parado e sem power-up!");
-        }
+      } else if (trap.kind === "poca_oleo") {
+        store.moveBy(p.id, -2);
+        flash("🛢️ Poça de óleo: voltou 2 casas!");
         store.clearTrap(landingIdx);
+      } else {
+        // dado invertido / armadilha => a vítima sorteia um neutralizador pra si
+        flash("😈 Caiu numa armadilha! Sorteie um neutralizador…");
+        store.clearTrap(landingIdx);
+        setPendingRoll(null);
+        setMoveBy(0);
+        setShowNeutral(true);
+        return;
       }
     }
     setLanding({ type: landingType, i: landingIdx });
@@ -230,7 +233,7 @@ export function PlayerScreen({ id, nav }: { id: string; nav: (r: Route) => void 
       <div className="panel stack-8">
         <div className="row between">
           <div className="label" style={{ color: "var(--ink)", textShadow: "none" }}>
-            🎒 Itens ({p.items.length}/{p.slots})
+            🎒 Itens ({p.items.length}/{slotCap(p)})
           </div>
           <button className="btn btn--sm btn--sky" disabled={!canEdit} onClick={() => setShowPower(true)}>❓ Pegar power-up</button>
         </div>

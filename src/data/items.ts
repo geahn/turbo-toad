@@ -51,17 +51,17 @@ export const SHOP: ShopProduct[] = [
   { id: "dado_triplo", name: "Dado Triplo", glyph: "🎲", price: 7, group: "dados", carryable: true, desc: "Lance o dado 3 vezes." },
   { id: "dado_invertido", name: "Dado Invertido", glyph: "🔄", price: 10, group: "dados", carryable: true, desc: "O próximo jogador volta a quantidade sorteada no dado." },
   // Reforços
-  { id: "cog_vermelho", name: "Cogumelo Vermelho", glyph: "🍄", price: 4, group: "reforcos", carryable: true, desc: "Salte 1 casa a mais além do sorteio do dado." },
-  { id: "cog_dourado", name: "Cogumelo Dourado", glyph: "🌟", price: 8, group: "reforcos", carryable: true, desc: "O sorteio do dado é multiplicado por 2." },
-  { id: "slot_extra", name: "Slot Adicional", glyph: "📦", price: 10, group: "reforcos", carryable: false, desc: "Passe a portar até 2 potencializadores ao mesmo tempo." },
+  { id: "cog_vermelho", name: "Cogumelo Vermelho", glyph: "🍄", price: 4, group: "reforcos", carryable: true, desc: "Pula 1 casa — pode evitar cair numa casa ruim." },
+  { id: "cog_dourado", name: "Cogumelo Dourado", glyph: "🌟", price: 8, group: "reforcos", carryable: true, desc: "Qualquer número do dado lançado é multiplicado por 2." },
+  { id: "slot_extra", name: "Slot Adicional", glyph: "📦", price: 10, group: "reforcos", carryable: false, desc: "Carregue +1 potencializador por 2 rodadas." },
   // Ataques
-  { id: "boo", name: "Boo", glyph: "👻", price: 3, group: "ataques", carryable: true, desc: "Roube 1 item do próximo jogador com mais moedas e troque a qtd de moedas com ele." },
-  { id: "armadilha", name: "Armadilha", glyph: "🪤", price: 7, group: "ataques", carryable: true, desc: "Plante uma armadilha. Quem cair perde 1 rodada e não pega potencializador na próxima." },
-  { id: "poca_oleo", name: "Poça de Óleo", glyph: "🛢️", price: 5, group: "ataques", carryable: true, desc: "Quem cair escorrega e volta 3 casas." },
-  { id: "casco_espinhoso", name: "Casco Espinhoso", glyph: "🐚", price: 10, group: "ataques", carryable: true, desc: "O 1º colocado atual fica 1 rodada sem jogar." },
-  { id: "raio", name: "Raio", glyph: "⚡", price: 12, group: "ataques", carryable: true, desc: "Todos ficam 2x mais lentos por 3 rodadas. Você recupera na 2ª rodada." },
+  { id: "boo", name: "Boo", glyph: "👻", price: 3, group: "ataques", carryable: true, desc: "Roube 1 item e troque moedas com o próximo jogador que tiver mais moedas que você (empate: o mais próximo)." },
+  { id: "armadilha", name: "Armadilha", glyph: "🪤", price: 7, group: "ataques", carryable: true, desc: "Plante na casa atual: quem cair tem de ativar um neutralizador." },
+  { id: "poca_oleo", name: "Poça de Óleo", glyph: "🛢️", price: 5, group: "ataques", carryable: true, desc: "Deixe na casa atual: quem cair volta 2 casas." },
+  { id: "casco_espinhoso", name: "Casco Espinhoso", glyph: "🐚", price: 10, group: "ataques", carryable: true, desc: "O 1º colocado (mais à frente / mais rico) fica 1 rodada parado e perde até 10 moedas." },
+  { id: "raio", name: "Raio", glyph: "⚡", price: 12, group: "ataques", carryable: true, desc: "Todos ficam lentos pela metade por 3 rodadas (arredonda pra baixo). Quem lançou fica lento só na 1ª." },
   // Serviços
-  { id: "cupom", name: "Cupom de Desconto", glyph: "🏷️", price: 5, group: "servicos", carryable: false, desc: "Deixa todos os produtos da loja 2 moedas mais baratos." },
+  { id: "cupom", name: "Cupom de Desconto", glyph: "🏷️", price: 5, group: "servicos", carryable: false, desc: "Todos os produtos da loja ficam pela metade do preço." },
   { id: "delivery", name: "Delivery do Toad", glyph: "🛵", price: 6, group: "servicos", carryable: false, desc: "Compre um item mesmo fora da loja, pagando +2 moedas de taxa." },
 ];
 

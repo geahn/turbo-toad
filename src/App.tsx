@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useGame } from "./store/gameStore";
 import { useNet } from "./net/net";
 import { Home } from "./screens/Home";
@@ -20,10 +20,27 @@ export type Route =
 export function App() {
   const phase = useGame((s) => s.phase);
   const mode = useGame((s) => s.config.mode);
+  const order = useGame((s) => s.order);
+  const turnIndex = useGame((s) => s.turnIndex);
   const role = useNet((s) => s.role);
   const [route, setRoute] = useState<Route>({ name: "dashboard" });
 
   const isClient = role === "client";
+
+  // Modo 1 celular (local): ao passar a vez, abre automaticamente a tela do
+  // jogador atual (passa-e-joga).
+  const prevTurn = useRef<number | null>(null);
+  useEffect(() => {
+    if (phase !== "playing" || mode !== "full" || role !== "local") {
+      prevTurn.current = null;
+      return;
+    }
+    const currentId = order[turnIndex];
+    if (currentId && prevTurn.current !== turnIndex) {
+      setRoute({ name: "player", id: currentId });
+    }
+    prevTurn.current = turnIndex;
+  }, [phase, mode, role, turnIndex, order]);
   let content: React.ReactNode = null;
 
   if (phase === "home") content = <Home />;

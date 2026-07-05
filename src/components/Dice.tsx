@@ -1,5 +1,4 @@
 import { useRef, useState } from "react";
-import { motion } from "framer-motion";
 import { DiceKind, POWER_FACES, NEUTRAL_FACES, DiceFace } from "../data/items";
 
 const PIP_LAYOUT: Record<number, [number, number][]> = {
@@ -21,13 +20,29 @@ function Pips({ value }: { value: number }) {
   return <div className="dice-pips">{cells}</div>;
 }
 
-function faceContent(kind: DiceKind, value: number) {
-  if (kind === "number") return <Pips value={value} />;
-  const face: DiceFace | undefined =
-    kind === "power"
-      ? POWER_FACES.find((f) => f.face === value)
-      : NEUTRAL_FACES.find((f) => f.face === value);
-  return <span className="dice-icon">{face?.glyph ?? "❓"}</span>;
+/** conteúdo de cada face do cubo (1..6) conforme o tipo de dado */
+function FaceContent({ kind, face }: { kind: DiceKind; face: number }) {
+  if (kind === "number") return <Pips value={face} />;
+  const f: DiceFace | undefined =
+    kind === "power" ? POWER_FACES.find((x) => x.face === face) : NEUTRAL_FACES.find((x) => x.face === face);
+  return <span className="cube__glyph">{f?.glyph ?? "❓"}</span>;
+}
+
+// rotação (graus) que traz cada valor pra frente do cubo
+const FACE_ROT: Record<number, { x: number; y: number }> = {
+  1: { x: 0, y: 0 },
+  2: { x: -90, y: 0 },
+  3: { x: 0, y: -90 },
+  4: { x: 0, y: 90 },
+  5: { x: 90, y: 0 },
+  6: { x: 0, y: 180 },
+};
+const TILT = { x: -18, y: 16 }; // leve inclinação em repouso pra dar profundidade 3D
+
+/** menor ângulo à frente de `current` que fica ≡ base (mod 360), + voltas extras */
+function nextAngle(current: number, base: number, spins: number) {
+  const delta = (((base - current) % 360) + 360) % 360;
+  return current + delta + spins * 360;
 }
 
 export function Dice({
@@ -43,30 +58,33 @@ export function Dice({
 }) {
   const [value, setValue] = useState<number | null>(null);
   const [rolling, setRolling] = useState(false);
+  // orientação inicial "de canto" (mostra 3 faces) = ainda não rolado
+  const rot = useRef({ x: -28, y: -32 });
+  const [transform, setTransform] = useState(
+    `translateZ(calc(var(--sz) / -2)) rotateX(-28deg) rotateY(-32deg)`
+  );
   const timer = useRef<number | null>(null);
 
-  const faceClass =
-    kind === "power" ? "dice-face dice-face--power" : kind === "neutral" ? "dice-face dice-face--neut" : "dice-face";
+  const cubeClass =
+    "cube" + (kind === "power" ? " cube--power" : kind === "neutral" ? " cube--neut" : "");
 
   const roll = () => {
     if (rolling || disabled) return;
+    if (timer.current) window.clearTimeout(timer.current);
+    const final = 1 + Math.floor(Math.random() * 6);
+    const tx = nextAngle(rot.current.x, FACE_ROT[final].x + TILT.x, 3);
+    const ty = nextAngle(rot.current.y, FACE_ROT[final].y + TILT.y, 4);
+    rot.current = { x: tx, y: ty };
     setRolling(true);
-    if (navigator.vibrate) navigator.vibrate(30);
-    let ticks = 0;
-    const shuffle = () => {
-      setValue(1 + Math.floor(Math.random() * 6));
-      ticks += 1;
-      if (ticks < 12) {
-        timer.current = window.setTimeout(shuffle, 60 + ticks * 8);
-      } else {
-        const final = 1 + Math.floor(Math.random() * 6);
-        setValue(final);
-        setRolling(false);
-        if (navigator.vibrate) navigator.vibrate([0, 40, 30, 60]);
-        onResult?.(final);
-      }
-    };
-    shuffle();
+    setValue(null);
+    setTransform(`translateZ(calc(var(--sz) / -2)) rotateX(${tx}deg) rotateY(${ty}deg)`);
+    if (navigator.vibrate) navigator.vibrate(35);
+    timer.current = window.setTimeout(() => {
+      setRolling(false);
+      setValue(final);
+      if (navigator.vibrate) navigator.vibrate([0, 45, 35, 60]);
+      onResult?.(final);
+    }, 1150);
   };
 
   const currentFace: DiceFace | undefined =
@@ -85,40 +103,29 @@ export function Dice({
           {label}
         </div>
       )}
-      <motion.button
-        className={faceClass}
+
+      <button
+        className={"dice-scene" + (rolling ? " is-rolling" : "")}
         onClick={roll}
         disabled={disabled}
-        aria-label="Lançar dado"
-        animate={rolling ? { rotate: [0, -8, 8, -6, 6, 0], scale: [1, 1.06, 1] } : { rotate: 0, scale: 1 }}
-        transition={{ duration: 0.4 }}
-        whileTap={{ scale: 0.94 }}
+        aria-label="Lançar dado 3D"
       >
-        {/* keyed div re-mounts on cada valor -> anima o "pop" sem AnimatePresence
-            (popLayout quebrava em alguns navegadores mobile) */}
-        <motion.div
-          key={value ?? "empty"}
-          initial={{ opacity: 0, scale: 0.6 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.12 }}
-          style={{ display: "grid", placeItems: "center", width: "100%", height: "100%" }}
-        >
-          {value == null ? <span className="dice-icon">🎲</span> : faceContent(kind, value)}
-        </motion.div>
-      </motion.button>
+        <div className={cubeClass} style={{ transform }}>
+          {[1, 2, 3, 4, 5, 6].map((f) => (
+            <div key={f} className={`cube__face f${f}`}>
+              <FaceContent kind={kind} face={f} />
+            </div>
+          ))}
+        </div>
+      </button>
 
       {currentFace && !rolling && (
-        <motion.div
-          className="panel"
-          style={{ padding: 12, textAlign: "center", background: "#fff" }}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
+        <div className="panel fade-enter" style={{ padding: 12, textAlign: "center", background: "#fff" }}>
           <div style={{ fontFamily: "var(--display)", fontSize: "1.2rem" }}>
             {currentFace.glyph} {currentFace.name}
           </div>
           <div className="tiny muted">{currentFace.desc}</div>
-        </motion.div>
+        </div>
       )}
 
       <button className="btn btn--gold btn--sm" onClick={roll} disabled={disabled || rolling}>

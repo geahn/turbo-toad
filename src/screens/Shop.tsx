@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { useGame } from "../store/gameStore";
+import { useGame, slotCap } from "../store/gameStore";
 import { SHOP, SHOP_GROUPS } from "../data/items";
 import { tileTypeAt } from "../data/board";
 import { Avatar } from "../components/Avatar";
@@ -20,7 +20,7 @@ export function Shop({ id, nav }: { id: string; nav: (r: Route) => void }) {
 
   const priceOf = (base: number) => {
     let v = base;
-    if (cupomActive) v = Math.max(1, v - 2);
+    if (cupomActive) v = Math.max(1, Math.ceil(v / 2)); // cupom: metade do preço
     if (delivery) v += 2;
     return v;
   };
@@ -43,14 +43,14 @@ export function Shop({ id, nav }: { id: string; nav: (r: Route) => void }) {
           <Avatar characterId={p.characterId} size="sm" />
           <div>
             <div style={{ fontWeight: 700 }}>{p.name}</div>
-            <div className="tiny muted">Slots: {p.items.length}/{p.slots}</div>
+            <div className="tiny muted">Slots: {p.items.length}/{slotCap(p)}</div>
           </div>
         </div>
         <span className="chip chip--coin" style={{ fontSize: "1rem" }}>🪙 {p.coins}</span>
       </div>
 
       <div className="row wrap" style={{ gap: 8 }}>
-        {cupomActive && <span className="chip chip--ok">🏷️ Cupom ativo −2</span>}
+        {cupomActive && <span className="chip chip--ok">🏷️ Cupom: metade do preço</span>}
         {!onShopTile && (
           <button
             className="chip"
@@ -73,7 +73,7 @@ export function Shop({ id, nav }: { id: string; nav: (r: Route) => void }) {
           <div className="label" style={{ marginTop: 4 }}>{g.label}</div>
           {SHOP.filter((s) => s.group === g.id).map((prod) => {
             const price = priceOf(prod.price);
-            const affordable = p.coins >= price && (!prod.carryable || p.items.length < p.slots);
+            const affordable = p.coins >= price && (!prod.carryable || p.items.length < slotCap(p));
             return (
               <div key={prod.id} className="item">
                 <span className="item__glyph" style={{ background: "#fff" }}>{prod.glyph}</span>

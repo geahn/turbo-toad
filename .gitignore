@@ -6,3 +6,4 @@ dist-ssr
 .vscode/*
 !.vscode/extensions.json
 _drive.mjs
+_*.mjs

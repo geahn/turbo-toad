@@ -279,7 +279,7 @@ export const useGame = create<GameState>()(
         const s = get();
         const p = s.players.find((x) => x.id === id);
         if (!p) return false;
-        if (p.items.length >= p.slots) return false;
+        if (p.items.length >= slotCap(p)) return false;
         set({
           players: s.players.map((x) =>
             x.id === id ? { ...x, items: [...x.items, itemId] } : x
@@ -306,18 +306,23 @@ export const useGame = create<GameState>()(
         const p = s.players.find((x) => x.id === id);
         if (!prod || !p) return false;
         let price = prod.price;
-        if (s.cupomActive) price = Math.max(1, price - 2);
+        if (s.cupomActive) price = Math.max(1, Math.ceil(price / 2)); // cupom: metade do preço
         if (deliveryFee) price += 2;
         if (p.coins < price) return false;
         // enforce slot limit for carryable items
-        if (prod.carryable && p.items.length >= p.slots) return false;
+        if (prod.carryable && p.items.length >= slotCap(p)) return false;
 
         set((state) => ({
           players: state.players.map((x) => {
             if (x.id !== id) return x;
             const patch: Partial<Player> = { coins: x.coins - price };
             if (prod.carryable) patch.items = [...x.items, prod.id];
-            if (prod.id === "slot_extra") patch.slots = 2;
+            // slot adicional: +1 slot por 2 rodadas (efeito temporário)
+            if (prod.id === "slot_extra")
+              patch.effects = [
+                ...x.effects.filter((e) => e.id !== "slot_extra"),
+                { id: "slot_extra", label: "Slot +1", glyph: "📦", roundsLeft: 2 },
+              ];
             return { ...x, ...patch };
           }),
           cupomActive: prod.id === "cupom" ? true : state.cupomActive,
@@ -446,7 +451,6 @@ export const useGame = create<GameState>()(
         if (!me || !me.items.includes(itemId)) return "Item indisponível.";
         const consume = () => get().removeItem(playerId, itemId);
         const size = s.board.length;
-        const progress = (p: Player) => p.lap * size + p.position;
 
         switch (itemId) {
           case "mushroom":
@@ -487,38 +491,36 @@ export const useGame = create<GameState>()(
           case "dado_invertido":
             consume();
             get().placeTrap(me.position, "dado_invertido", playerId);
-            return "🔄 Armadilha do dado invertido plantada nesta casa.";
+            return "🔄 Dado invertido deixado na casa: quem cair sorteia um neutralizador.";
 
           case "armadilha":
             consume();
             get().placeTrap(me.position, "armadilha", playerId);
-            return "🪤 Armadilha plantada nesta casa.";
+            return "🪤 Armadilha plantada: quem cair ativa um neutralizador.";
 
           case "poca_oleo":
             consume();
             get().placeTrap(me.position, "poca_oleo", playerId);
-            return "🛢️ Poça de óleo plantada nesta casa.";
+            return "🛢️ Poça de óleo deixada nesta casa (quem cair volta 2 casas).";
 
           case "boo": {
             consume();
-            // alvo = quem tem MAIS moedas (empate: mais próximo na pista)
             const others = s.players.filter((p) => p.id !== playerId && !p.finished);
             if (others.length === 0) return "👻 Ninguém pra assombrar.";
-            const maxCoins = Math.max(...others.map((p) => p.coins));
-            const tied = others.filter((p) => p.coins === maxCoins);
-            const target =
-              tied.length === 1
-                ? tied[0]
-                : tied.sort(
-                    (a, b) =>
-                      Math.abs(progress(a) - progress(me)) - Math.abs(progress(b) - progress(me))
-                  )[0];
-            // rouba 1 item + troca as quantidades de moedas
+            const nearest = (list: Player[]) =>
+              [...list].sort(
+                (a, b) =>
+                  (((a.position - me.position) % size + size) % size || size) -
+                  (((b.position - me.position) % size + size) % size || size)
+              )[0];
+            // próximo jogador com MAIS moedas que ele; se ninguém, o mais próximo
+            const richer = others.filter((o) => o.coins > me.coins);
+            const target = richer.length ? nearest(richer) : nearest(others);
             const stolen = target.items[0];
             set((st) => ({
               players: st.players.map((p) => {
                 if (p.id === me.id) {
-                  const items = stolen && p.items.length < p.slots ? [...p.items, stolen] : p.items;
+                  const items = stolen && p.items.length < slotCap(p) ? [...p.items, stolen] : p.items;
                   return { ...p, items, coins: target.coins };
                 }
                 if (p.id === target.id) {
@@ -537,8 +539,10 @@ export const useGame = create<GameState>()(
             if (!leader) return "🐚 Sem líder pra atingir.";
             if (leader.id === playerId) return "🐚 Você é o líder — não faz sentido.";
             if (shieldBlocks(leader, "spiny")) return `🐚 ${leader.name} estava invencível!`;
+            const lost = Math.min(10, leader.coins);
             get().addSkip(leader.id, 1);
-            return `🐚 ${leader.name} (1º lugar) fica 1 rodada parado!`;
+            get().addCoins(leader.id, -lost);
+            return `🐚 ${leader.name} (líder) fica 1 rodada parado e perde ${lost} moedas!`;
           }
 
           case "raio":
@@ -546,10 +550,10 @@ export const useGame = create<GameState>()(
             s.players.forEach((p) => {
               if (p.finished) return;
               if (p.effects.some((e) => e.id === "star")) return;
-              const rounds = p.id === playerId ? 2 : 3; // lançador recupera na 2ª
+              const rounds = p.id === playerId ? 1 : 3; // lançador fica lento só na 1ª rodada
               get().addEffect(p.id, { id: "lightning", label: "Raio", glyph: "⚡", roundsLeft: rounds });
             });
-            return "⚡ Todos ficaram lentos por 3 rodadas!";
+            return "⚡ Todos lentos pela metade por 3 rodadas (você só na 1ª)!";
 
           case "dado_duplo":
             consume();
@@ -577,6 +581,11 @@ export function orderedPlayers(state: GameState): Player[] {
   return state.order
     .map((id) => state.players.find((p) => p.id === id))
     .filter((p): p is Player => !!p);
+}
+
+/** capacidade de slots: 1 + slot adicional temporário (2 rodadas) */
+export function slotCap(p: Player): number {
+  return 1 + (p.effects.some((e) => e.id === "slot_extra") ? 1 : 0);
 }
 
 /** ranking: laps desc, then position desc */
