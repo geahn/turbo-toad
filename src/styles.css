@@ -1,0 +1,654 @@
+@import "@fontsource/lilita-one/400.css";
+@import "@fontsource/fredoka/400.css";
+@import "@fontsource/fredoka/500.css";
+@import "@fontsource/fredoka/600.css";
+@import "@fontsource/fredoka/700.css";
+
+/* ============================================================
+   TURBO TOAD — design system
+   Aesthetic: playful "toy-box" racing. Chunky rounded panels,
+   thick ink outlines, hard offset shadows, checkered racing trim.
+   ============================================================ */
+
+:root {
+  /* Brand palette */
+  --track: #0d7a3f;
+  --track-dark: #0a5e30;
+  --mario: #e11d2a;
+  --mario-dark: #b3141f;
+  --gold: #ffd23f;
+  --gold-deep: #f0a500;
+  --pipe: #43b047;
+  --pipe-dark: #2f8a35;
+  --sky: #29abe2;
+  --sky-dark: #1c86b6;
+  --orange: #f7931e;
+  --orange-dark: #d4770c;
+  --plum: #7b3f9e;
+  --ink: #17251c;
+  --ink-soft: #37453d;
+  --paper: #fbf6e9;
+  --paper-2: #f1ead4;
+  --tile: #eef0f2;
+  --white: #ffffff;
+
+  /* Semantic */
+  --ok: #33a852;
+  --warn: #f7931e;
+  --bad: #e11d2a;
+
+  /* Type */
+  --display: "Lilita One", system-ui, sans-serif;
+  --body: "Fredoka", system-ui, sans-serif;
+
+  /* Shape */
+  --r-sm: 12px;
+  --r-md: 18px;
+  --r-lg: 26px;
+  --r-xl: 34px;
+  --outline: 4px;
+  --ink-line: 3px solid var(--ink);
+
+  /* Shadows — hard toy offset */
+  --sh-1: 0 4px 0 rgba(0, 0, 0, 0.28);
+  --sh-2: 0 7px 0 rgba(0, 0, 0, 0.3);
+  --sh-3: 0 12px 28px rgba(0, 0, 0, 0.35);
+
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--body);
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 20% 0%, #12934c 0%, transparent 45%),
+    radial-gradient(circle at 90% 15%, #0f8a47 0%, transparent 40%),
+    var(--track);
+  overscroll-behavior-y: none;
+}
+
+/* Subtle checkered texture layer behind everything */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    linear-gradient(45deg, rgba(255, 255, 255, 0.035) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.035) 75%),
+    linear-gradient(45deg, rgba(255, 255, 255, 0.035) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.035) 75%);
+  background-size: 44px 44px;
+  background-position: 0 0, 22px 22px;
+}
+
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+button {
+  font-family: var(--body);
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--display);
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  margin: 0;
+  line-height: 1.02;
+}
+
+/* ---------- Layout shell ---------- */
+.app {
+  max-width: 540px;
+  margin: 0 auto;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: calc(var(--safe-top) + 10px) 14px calc(var(--safe-bottom) + 18px);
+}
+
+.screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 8px;
+}
+
+/* ---------- Racing trim (checkered bar) ---------- */
+.trim {
+  height: 14px;
+  border-radius: 20px;
+  border: 3px solid var(--ink);
+  background:
+    repeating-linear-gradient(45deg, var(--ink) 0 10px, var(--white) 10px 20px);
+  box-shadow: var(--sh-1);
+}
+
+/* ---------- Panels / cards ---------- */
+.panel {
+  background: var(--paper);
+  border: var(--outline) solid var(--ink);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-2);
+  padding: 16px;
+}
+
+.panel--sky {
+  background: var(--sky);
+  color: var(--white);
+}
+.panel--orange {
+  background: var(--orange);
+  color: var(--white);
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  --c: var(--mario);
+  --cd: var(--mario-dark);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 15px 18px;
+  font-family: var(--display);
+  font-size: 1.15rem;
+  letter-spacing: 0.6px;
+  color: var(--white);
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.28);
+  background: var(--c);
+  border: 3px solid var(--ink);
+  border-radius: var(--r-md);
+  box-shadow: 0 6px 0 var(--cd), var(--sh-1);
+  transition: transform 0.06s ease, box-shadow 0.06s ease, filter 0.15s ease;
+}
+.btn:active {
+  transform: translateY(5px);
+  box-shadow: 0 1px 0 var(--cd), 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+.btn:disabled {
+  filter: grayscale(0.6) brightness(0.85);
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+.btn--green {
+  --c: var(--pipe);
+  --cd: var(--pipe-dark);
+}
+.btn--gold {
+  --c: var(--gold-deep);
+  --cd: #c07f00;
+}
+.btn--sky {
+  --c: var(--sky);
+  --cd: var(--sky-dark);
+}
+.btn--dark {
+  --c: #2b3a30;
+  --cd: #16211a;
+}
+.btn--ghost {
+  color: var(--ink);
+  text-shadow: none;
+  background: var(--white);
+  box-shadow: 0 5px 0 #cfcabc, var(--sh-1);
+}
+.btn--ghost:active {
+  box-shadow: 0 1px 0 #cfcabc;
+}
+.btn--sm {
+  width: auto;
+  font-size: 0.92rem;
+  padding: 9px 14px;
+  border-radius: 13px;
+  box-shadow: 0 4px 0 var(--cd);
+}
+.btn--sm:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--cd);
+}
+
+/* ---------- Chips / badges ---------- */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 700;
+  font-size: 0.82rem;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 2.5px solid var(--ink);
+  background: var(--white);
+  color: var(--ink);
+  white-space: nowrap;
+}
+.chip--coin {
+  background: var(--gold);
+}
+.chip--ok {
+  background: var(--ok);
+  color: #fff;
+}
+.chip--warn {
+  background: var(--warn);
+  color: #fff;
+}
+.chip--bad {
+  background: var(--bad);
+  color: #fff;
+}
+
+/* ---------- Utility ---------- */
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.row.wrap {
+  flex-wrap: wrap;
+}
+.between {
+  justify-content: space-between;
+}
+.center {
+  justify-content: center;
+}
+.col {
+  display: flex;
+  flex-direction: column;
+}
+.grow {
+  flex: 1;
+}
+.muted {
+  color: var(--ink-soft);
+}
+.tiny {
+  font-size: 0.78rem;
+}
+.center-text {
+  text-align: center;
+}
+.stack-8 > * + * {
+  margin-top: 8px;
+}
+.stack-12 > * + * {
+  margin-top: 12px;
+}
+
+/* ---------- Brand header ---------- */
+.brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+}
+.brand__logo {
+  font-family: var(--display);
+  font-size: clamp(2.4rem, 12vw, 3.4rem);
+  line-height: 0.92;
+  color: var(--gold);
+  -webkit-text-stroke: 3px var(--ink);
+  paint-order: stroke fill;
+  text-shadow: 0 6px 0 rgba(0, 0, 0, 0.28);
+}
+.brand__logo .red {
+  color: var(--mario);
+}
+.brand__tag {
+  font-family: var(--body);
+  font-weight: 600;
+  color: var(--white);
+  background: var(--ink);
+  padding: 3px 12px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* ---------- Top bar (in-game) ---------- */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.topbar__title {
+  font-family: var(--display);
+  color: var(--white);
+  font-size: 1.5rem;
+  text-shadow: 0 3px 0 rgba(0, 0, 0, 0.3);
+}
+.iconbtn {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  font-size: 1.3rem;
+  border-radius: 14px;
+  border: 3px solid var(--ink);
+  background: var(--white);
+  box-shadow: 0 4px 0 #cfcabc;
+}
+.iconbtn:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #cfcabc;
+}
+
+/* ---------- Avatars ---------- */
+.avatar {
+  --sz: 54px;
+  width: var(--sz);
+  height: var(--sz);
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 3px solid var(--ink);
+  box-shadow: inset 0 -6px 0 rgba(0, 0, 0, 0.15);
+  font-size: calc(var(--sz) * 0.5);
+  position: relative;
+  overflow: hidden;
+}
+.avatar--lg {
+  --sz: 96px;
+}
+.avatar--sm {
+  --sz: 40px;
+  border-width: 2.5px;
+}
+.avatar__emoji {
+  filter: drop-shadow(0 2px 1px rgba(0, 0, 0, 0.25));
+  line-height: 1;
+}
+
+/* ---------- Forms ---------- */
+.input {
+  width: 100%;
+  font-family: var(--body);
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 3px solid var(--ink);
+  background: var(--white);
+  color: var(--ink);
+}
+.input::placeholder {
+  color: #a9a496;
+}
+.input:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(41, 171, 226, 0.4);
+}
+
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+.stepper button {
+  width: 46px;
+  height: 46px;
+  font-family: var(--display);
+  font-size: 1.6rem;
+  color: #fff;
+  border-radius: 14px;
+  border: 3px solid var(--ink);
+  background: var(--pipe);
+  box-shadow: 0 4px 0 var(--pipe-dark);
+}
+.stepper button:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--pipe-dark);
+}
+.stepper__val {
+  font-family: var(--display);
+  font-size: 2rem;
+  min-width: 46px;
+  text-align: center;
+}
+
+/* ---------- Segmented toggle ---------- */
+.seg {
+  display: flex;
+  gap: 8px;
+}
+.seg button {
+  flex: 1;
+  padding: 12px;
+  border-radius: 14px;
+  border: 3px solid var(--ink);
+  background: var(--white);
+  font-family: var(--body);
+  font-weight: 700;
+  color: var(--ink);
+  box-shadow: 0 4px 0 #cfcabc;
+}
+.seg button[aria-pressed="true"] {
+  background: var(--sky);
+  color: #fff;
+  box-shadow: 0 4px 0 var(--sky-dark);
+}
+
+/* ---------- Dice ---------- */
+.dice-face {
+  width: min(62vw, 220px);
+  aspect-ratio: 1;
+  border-radius: 30px;
+  border: 5px solid var(--ink);
+  background: linear-gradient(160deg, #ffffff, #e9e9ef);
+  box-shadow: var(--sh-3), inset 0 -12px 0 rgba(0, 0, 0, 0.08);
+  display: grid;
+  place-items: center;
+  margin: 0 auto;
+  user-select: none;
+}
+.dice-face--power {
+  background: linear-gradient(160deg, #7fd0f2, var(--sky));
+  border-color: var(--ink);
+}
+.dice-face--neut {
+  background: linear-gradient(160deg, #ffb763, var(--orange));
+}
+.dice-pips {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 10%;
+  width: 62%;
+  height: 62%;
+}
+.pip {
+  border-radius: 50%;
+  background: var(--ink);
+  box-shadow: inset 0 -3px 0 rgba(255, 255, 255, 0.3);
+}
+.dice-icon {
+  font-size: min(30vw, 110px);
+  line-height: 1;
+  filter: drop-shadow(0 4px 2px rgba(0, 0, 0, 0.3));
+}
+
+/* ---------- Item tiles ---------- */
+.item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 16px;
+  border: 3px solid var(--ink);
+  background: var(--white);
+  box-shadow: 0 4px 0 #d8d2c2;
+}
+.item__glyph {
+  width: 46px;
+  height: 46px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  font-size: 1.6rem;
+  border-radius: 12px;
+  border: 2.5px solid var(--ink);
+}
+.item__name {
+  font-weight: 700;
+  font-size: 0.98rem;
+  line-height: 1.1;
+}
+.item__desc {
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  line-height: 1.2;
+}
+
+/* ---------- Player list card ---------- */
+.pcard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 20px;
+  border: 4px solid var(--ink);
+  background: var(--paper);
+  box-shadow: var(--sh-1);
+  transition: transform 0.1s ease;
+  text-align: left;
+  width: 100%;
+}
+.pcard:active {
+  transform: scale(0.98);
+}
+.pcard--turn {
+  background: var(--gold);
+  box-shadow: 0 0 0 4px rgba(255, 210, 63, 0.5), var(--sh-2);
+}
+.pcard--down {
+  filter: grayscale(0.55);
+  opacity: 0.82;
+}
+.pcard__name {
+  font-family: var(--display);
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+/* ---------- Rank medal ---------- */
+.medal {
+  font-family: var(--display);
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 2.5px solid var(--ink);
+  background: var(--white);
+  font-size: 0.95rem;
+  flex: 0 0 auto;
+}
+.medal--1 {
+  background: var(--gold);
+}
+.medal--2 {
+  background: #d7dde3;
+}
+.medal--3 {
+  background: #e0a46a;
+}
+
+/* ---------- Bottom action bar ---------- */
+.actionbar {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  gap: 10px;
+  padding-top: 10px;
+  margin-top: auto;
+}
+
+/* ---------- Modal ---------- */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: end center;
+  background: rgba(9, 30, 18, 0.6);
+  backdrop-filter: blur(3px);
+  padding: 14px;
+}
+.sheet {
+  width: 100%;
+  max-width: 540px;
+  background: var(--paper);
+  border: 4px solid var(--ink);
+  border-radius: var(--r-xl);
+  box-shadow: var(--sh-3);
+  padding: 18px;
+  max-height: 88vh;
+  overflow-y: auto;
+}
+
+/* ---------- Misc ---------- */
+.divider {
+  height: 3px;
+  background: repeating-linear-gradient(90deg, var(--ink) 0 8px, transparent 8px 14px);
+  border: none;
+  opacity: 0.5;
+  margin: 4px 0;
+}
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.label {
+  font-family: var(--display);
+  font-size: 0.95rem;
+  color: var(--white);
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
+  letter-spacing: 0.5px;
+}
+
+.fade-enter {
+  animation: fadeUp 0.28s ease both;
+}
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
