@@ -20,7 +20,8 @@ export function PlayerScreen({ id, nav }: { id: string; nav: (r: Route) => void 
   const online = net.role !== "local";
   const canEdit = !online || id === net.myPlayerId;
   const isCurrent = order[turnIndex] === id;
-  const canRoll = canEdit && (!online || isCurrent);
+  // o dado só é liberado na vez do jogador (em qualquer modo)
+  const canRoll = canEdit && isCurrent;
   const [pendingRoll, setPendingRoll] = useState<number | null>(null);
   const [moveBy, setMoveBy] = useState(0);
   const [landing, setLanding] = useState<{ type: string; i: number } | null>(null);
@@ -112,9 +113,9 @@ export function PlayerScreen({ id, nav }: { id: string; nav: (r: Route) => void 
           👀 Espiando <strong>{p.name}</strong> — só dá pra editar o seu piloto.
         </div>
       )}
-      {online && canEdit && !isCurrent && (
+      {!isCurrent && (
         <div className="panel center-text tiny" style={{ background: "#fff3bf" }}>
-          ⏳ Ainda não é sua vez de lançar o dado.
+          ⏳ Não é a vez de <strong>{p.name}</strong> — o dado abre só na vez dele.
         </div>
       )}
 
@@ -169,6 +170,22 @@ export function PlayerScreen({ id, nav }: { id: string; nav: (r: Route) => void 
               <span className="chip chip--coin" style={{ marginTop: 4 }}>🏁 Volta {p.lap + 1}/{laps}</span>
             </div>
           </div>
+
+          {/* Ações que só aparecem conforme a casa onde o piloto está */}
+          {canEdit && tile.type === "power" && (
+            <button className="btn btn--sky" onClick={() => setShowPower(true)}>
+              ❓ Pegar potencializador (casa amarela)
+            </button>
+          )}
+          {canEdit && tile.type === "neutral" && (
+            <button
+              className="btn"
+              style={{ background: "var(--plum)", boxShadow: "0 6px 0 #5a2d75" }}
+              onClick={() => setShowNeutral(true)}
+            >
+              ¿? Sortear neutralizador (casa roxa)
+            </button>
+          )}
 
           <Dice kind="number" label="Dado de número" onResult={applyRoll} disabled={!canRoll} />
 
@@ -231,11 +248,8 @@ export function PlayerScreen({ id, nav }: { id: string; nav: (r: Route) => void 
 
       {/* Items */}
       <div className="panel stack-8">
-        <div className="row between">
-          <div className="label" style={{ color: "var(--ink)", textShadow: "none" }}>
-            🎒 Itens ({p.items.length}/{slotCap(p)})
-          </div>
-          <button className="btn btn--sm btn--sky" disabled={!canEdit} onClick={() => setShowPower(true)}>❓ Pegar power-up</button>
+        <div className="label" style={{ color: "var(--ink)", textShadow: "none" }}>
+          🎒 Itens ({p.items.length}/{slotCap(p)})
         </div>
         {p.items.length === 0 && <div className="tiny muted">Sem itens no momento.</div>}
         {p.items.map((it, i) => {
@@ -270,6 +284,15 @@ export function PlayerScreen({ id, nav }: { id: string; nav: (r: Route) => void 
         </button>
         <button className="btn btn--sky" disabled={!canEdit} onClick={() => setShowEffects(true)}>✨ Efeitos</button>
       </div>
+
+      {/* Encerrar a vez -> passa pro próximo e (modo 1 celular) troca de tela */}
+      {isCurrent && canEdit && (
+        <div className="actionbar">
+          <button className="btn btn--green" onClick={() => store.nextTurn()}>
+            ✅ Encerrar a vez de {p.name} ▶
+          </button>
+        </div>
+      )}
 
       {/* Power-up dice sheet */}
       {showPower && (
